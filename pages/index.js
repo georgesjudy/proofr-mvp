@@ -1,14 +1,16 @@
 import { useState } from "react";
 
 export default function Home() {
-  const [email, setEmail] = useState("");
-  const [submitted, setSubmitted] = useState(false);
-  const [verified, setVerified] = useState(false);
-  const [error, setError] = useState("");
+  const [email, setEmail] = useState("");         // stores the email input
+  const [submitted, setSubmitted] = useState(false); // true after form submit
+  const [verified, setVerified] = useState(false);   // true if "verified"
+  const [loading, setLoading] = useState(false);     // true while API responds
+  const [error, setError] = useState("");            // stores error messages
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitted(true);
+    setLoading(true);
     setError("");
 
     try {
@@ -18,20 +20,25 @@ export default function Home() {
         body: JSON.stringify({ email }),
       });
 
-      if (!res.ok) throw new Error("Verification failed");
+      if (!res.ok) {
+        throw new Error("Verification failed. Try again later.");
+      }
 
       const data = await res.json();
+
       setTimeout(() => {
         setVerified(data.verified);
-      }, 1500);
+        setLoading(false);
+      }, 1500); // simulate AI processing delay
+
     } catch (err) {
-      setError("Something went wrong. Try again.");
-      setSubmitted(false);
+      setError(err.message);
+      setLoading(false);
     }
   };
 
   return (
-    <div style={{ textAlign: "center", marginTop: "100px" }}>
+    <div style={{ textAlign: "center", marginTop: "100px", fontFamily: "Arial, sans-serif" }}>
       <h1>Proofr — AI Verified Creator Proof</h1>
       <p>Welcome to Proofr! Your AI-verified digital identity starts here.</p>
 
@@ -44,18 +51,20 @@ export default function Home() {
             onChange={(e) => setEmail(e.target.value)}
             required
             style={{ padding: "10px", width: "250px" }}
+            disabled={loading}
           />
           <button
             type="submit"
             style={{ padding: "10px 20px", marginLeft: "10px", cursor: "pointer" }}
+            disabled={loading}
           >
             Get Started
           </button>
         </form>
-      ) : error ? (
-        <p style={{ color: "red" }}>{error}</p>
-      ) : !verified ? (
+      ) : loading ? (
         <p>Verifying your AI identity...</p>
+      ) : error ? (
+        <p style={{ color: "red" }}>⚠️ {error}</p>
       ) : (
         <p>✅ Verified! Welcome, {email}</p>
       )}

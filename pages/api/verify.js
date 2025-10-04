@@ -1,31 +1,24 @@
-import fs from "fs";
-import path from "path";
-
-const filePath = path.join(process.cwd(), "verified-emails.json");
+let verifiedEmails = []; // temporary in-memory storage
 
 export default function handler(req, res) {
-  // Read existing emails
-  let verifiedEmails = [];
-  if (fs.existsSync(filePath)) {
-    const data = fs.readFileSync(filePath, "utf-8");
-    verifiedEmails = JSON.parse(data);
-  }
-
   if (req.method === "POST") {
     const { email } = req.body;
-    if (!email) return res.status(400).json({ error: "Email is required" });
+    if (!email) {
+      return res.status(400).json({ error: "Email is required" });
+    }
 
-    // Simple AI verification logic (mock)
-    const verified = email.includes("@"); // fake verification: must contain "@"
+    // MOCK AI verification (always returns true for now)
+    const verified = true;
+
+    // store verification history (in-memory)
     verifiedEmails.push({ email, verified, timestamp: new Date() });
-
-    // Save to file
-    fs.writeFileSync(filePath, JSON.stringify(verifiedEmails, null, 2));
 
     return res.status(200).json({ email, verified });
   }
 
-  if (req.method === "GET") return res.status(200).json(verifiedEmails);
+  if (req.method === "GET") {
+    return res.status(200).json(verifiedEmails);
+  }
 
   res.status(405).json({ error: "Method not allowed" });
 }
