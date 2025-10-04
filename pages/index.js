@@ -4,16 +4,30 @@ export default function Home() {
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [verified, setVerified] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitted(true);
+    setError("");
 
-    // Mock AI verification (simply a timeout for now)
-    setTimeout(() => {
-      setVerified(true);
-      console.log(`Email verified: ${email}`);
-    }, 1500); // 1.5 seconds delay to simulate AI processing
+    try {
+      const res = await fetch("/api/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      if (!res.ok) throw new Error("Verification failed");
+
+      const data = await res.json();
+      setTimeout(() => {
+        setVerified(data.verified);
+      }, 1500);
+    } catch (err) {
+      setError("Something went wrong. Try again.");
+      setSubmitted(false);
+    }
   };
 
   return (
@@ -38,6 +52,8 @@ export default function Home() {
             Get Started
           </button>
         </form>
+      ) : error ? (
+        <p style={{ color: "red" }}>{error}</p>
       ) : !verified ? (
         <p>Verifying your AI identity...</p>
       ) : (

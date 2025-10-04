@@ -13,23 +13,19 @@ export default function handler(req, res) {
 
   if (req.method === "POST") {
     const { email } = req.body;
-    if (!email) {
-      return res.status(400).json({ error: "Email is required" });
-    }
+    if (!email) return res.status(400).json({ error: "Email is required" });
 
-    // mock verification
-    const verified = true;
+    // Simple AI verification logic (mock)
+    const verified = email.includes("@"); // fake verification: must contain "@"
     verifiedEmails.push({ email, verified, timestamp: new Date() });
 
-    // Save back to file
+    // Save to file
     fs.writeFileSync(filePath, JSON.stringify(verifiedEmails, null, 2));
 
     return res.status(200).json({ email, verified });
   }
 
-  if (req.method === "GET") {
-    return res.status(200).json(verifiedEmails);
-  }
+  if (req.method === "GET") return res.status(200).json(verifiedEmails);
 
   res.status(405).json({ error: "Method not allowed" });
 }
