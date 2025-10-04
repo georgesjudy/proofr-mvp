@@ -3,12 +3,17 @@ import { useState } from "react";
 export default function Home() {
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [verified, setVerified] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     setSubmitted(true);
-    console.log("Email submitted:", email);
-    // later we can connect this to a backend or database
+
+    // Mock AI verification (simply a timeout for now)
+    setTimeout(() => {
+      setVerified(true);
+      console.log(`Email verified: ${email}`);
+    }, 1500); // 1.5 seconds delay to simulate AI processing
   };
 
   return (
@@ -33,8 +38,10 @@ export default function Home() {
             Get Started
           </button>
         </form>
+      ) : !verified ? (
+        <p>Verifying your AI identity...</p>
       ) : (
-        <p>Thank you! We’ll be in touch soon.</p>
+        <p>✅ Verified! Welcome, {email}</p>
       )}
     </div>
   );
